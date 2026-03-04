@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>ניהול המוח של באזי</title>
+    <style>
+        body { font-family: sans-serif; background: #f4f7f6; padding: 20px; direction: rtl; }
+        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .editor { display: flex; gap: 10px; margin-bottom: 30px; background: #fff8e1; padding: 20px; border-radius: 10px; }
+        input, textarea { padding: 12px; border: 1px solid #ddd; border-radius: 8px; flex: 1; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 15px; border-bottom: 1px solid #eee; text-align: right; }
+        th { background: #3e2723; color: white; }
+        .btn { padding: 8px 15px; cursor: pointer; border: none; border-radius: 5px; color: white; font-weight: bold; }
+        .btn-add { background: #4CAF50; width: 100px; }
+        .btn-edit { background: #2196F3; }
+        .btn-delete { background: #F44336; }
+        .btn-save { background: #FF9800; display: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>הוספת ידע חדש 🐝</h2>
+    <div class="editor">
+        <input type="text" id="newKeys" placeholder="מילות מפתח (למשל: דבש, מלכה, עוקץ)">
+        <textarea id="newAns" placeholder="תשובת באזי" rows="1"></textarea>
+        <button class="btn btn-add" onclick="addItem()">הוסף</button>
+    </div>
+
+    <h2>המוח הקיים:</h2>
+    <table id="knowledgeTable">
+        <thead><tr><th>מילות מפתח</th><th>תשובה</th><th>פעולות</th></tr></thead>
+        <tbody id="tableBody"></tbody>
+    </table>
+</div>
+
+<script>
+    async function load() {
+        const res = await fetch('/api/admin/list');
+        const data = await res.json();
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+        data.forEach(item => {
+            tbody.innerHTML += `
+                    <tr id="row-${item.id}">
+                        <td><input type="text" value="${item.keywords}" id="k-${item.id}" disabled></td>
+                        <td><textarea id="a-${item.id}" disabled>${item.answer}</textarea></td>
+                        <td>
+                            <button class="btn btn-edit" id="eb-${item.id}" onclick="editMode(${item.id})">ערוך</button>
+                            <button class="btn btn-save" id="sb-${item.id}" onclick="save(${item.id})">שמור</button>
+                            <button class="btn btn-delete" onclick="del(${item.id})">מחק</button>
+                        </td>
+                    </tr>`;
+        });
+    }
+
+    async function addItem() {
+        const keywords = document.getElementById('newKeys').value;
+        const answer = document.getElementById('newAns').value;
+        await fetch('/api/admin/add', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ keywords, answer })
+        });
+        location.reload();
+    }
+
+    function editMode(id) {
+        document.getElementById(`k-${id}`).disabled = false;
+        document.getElementById(`a-${id}`).disabled = false;
+        document.getElementById(`eb-${id}`).style.display = 'none';
+        document.getElementById(`sb-${id}`).style.display = 'inline';
+    }
+
+    async function save(id) {
+        const keywords = document.getElementById(`k-${id}`).value;
+        const answer = document.getElementById(`a-${id}`).value;
+        await fetch(`/api/admin/update/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ keywords, answer })
+        });
+        load();
+    }
+
+    async function del(id) {
+        if(confirm('למחוק את הידע הזה?')) {
+            await fetch(`/api/admin/delete/${id}`, { method: 'DELETE' });
+            load();
+        }
+    }
+    load();
+</script>
+</body>
+</html>
