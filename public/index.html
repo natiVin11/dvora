@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>פרופסור באזי - חוויה אינטראקטיבית</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="start-overlay">
+    <h1>פרופסור באזי 🐝</h1>
+    <p>לחצו להתחלת השיחה</p>
+    <button id="start-btn">בוא נדבר!</button>
+</div>
+
+<div id="canvas-wrapper"></div>
+
+<div id="ui">
+    <div id="bubble"></div>
+    <form id="chat-form" class="input-group">
+        <input type="text" id="userBox" placeholder="דברו אל באזי..." autocomplete="off">
+        <button type="button" id="mic-btn">🎤</button>
+        <button type="submit">שלח</button>
+    </form>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
